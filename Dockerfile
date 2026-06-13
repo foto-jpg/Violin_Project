@@ -1,71 +1,33 @@
-# syntax=docker/dockerfile:1.7
-# HF Spaces (Docker SDK, port 7860) - one container:
-# FastAPI serves the Next.js static export + /api, Audiveris (Java) + CREPE (CPU).
-
-# ============ Stage 1: Next.js static export ============
-FROM node:20-alpine AS frontend-builder
-WORKDIR /frontend
+# --- Frontend Builder ---
+FROM node:18-alpine AS frontend-builder
+WORKDIR /app/frontend
 COPY frontend/package*.json ./
-# No lockfile in repo - use install (mirrors frontend/Dockerfile).
-RUN npm install
-COPY frontend/ ./
-# Static export can't host the dynamic proxy route handler; on HF the API is
-# same-origin via FastAPI, so the proxy isn't needed.
-RUN rm -rf app/api
-ENV NEXT_PUBLIC_HF=1 \
-    NEXT_PUBLIC_API_BASE=/api
-RUN npm run build          # -> /frontend/out
+RUN npm ci
+COPY frontend/ .
+RUN npm run build
 
-# ============ Stage 2: Audiveris distribution (public, proven build) ============
-FROM toprock/audiveris:latest AS audiveris
-# provides /audiveris-extract (Audiveris 5.x Java dist) + tessdata
+# --- Final Runtime (Python + Audiveris Java) ---
+FROM python:3.10-slim AS runtime
 
-# ============ Stage 3: runtime ============
-# Pin bookworm (Debian 12) - it still ships openjdk-17, which the Audiveris
-# build from toprock/audiveris was made for (trixie dropped JDK 17).
-FROM python:3.11-slim-bookworm
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    openjdk-17-jre-headless \
-    tesseract-ocr tesseract-ocr-eng tesseract-ocr-osd \
-    poppler-utils libmagic1 \
-    libfreetype6 fontconfig fonts-dejavu \
-    libsndfile1 ffmpeg \
+# ลง JRE สำหรับให้ Audiveris Binary ฝั่ง Backend เรียกใช้งาน
+RUN apt-get update && apt-get install -y \
+    openjdk-11-jre-headless \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
-# Audiveris (Java OMR) + its tessdata, copied from the proven image
-COPY --from=audiveris /audiveris-extract /opt/audiveris
-COPY --from=audiveris /usr/share/tesseract-ocr/tessdata /opt/tessdata
-ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \
-    TESSDATA_PREFIX=/opt/tessdata
-
-# Non-root user (HF best practice: uid 1000)
-RUN useradd -m -u 1000 user
-USER user
-ENV PATH="/home/user/.local/bin:${PATH}"
 WORKDIR /app
 
-# Python deps
-COPY --chown=user requirements-hf.txt ./requirements.txt
-RUN pip install --no-cache-dir --upgrade pip \
- && pip install --no-cache-dir -r requirements.txt
+# ก็อปปี้เฉพาะไฟล์ที่จำเป็นมาใช้งาน (ลดขนาด Image Layer)
+COPY backend/requirements-hf.txt ./
+RUN pip install --no-cache-dir -r requirements-hf.txt
 
-# Backend code (+ CREPE checkpoint) and the static frontend
-COPY --chown=user backend/ ./backend/
-COPY --chown=user --from=frontend-builder /frontend/out ./static/
+# ดึงผลลัพธ์ Static Build จาก Stage แรกมาปล่อยให้ FastAPI Mount
+COPY --from=frontend-builder /app/frontend/out ./frontend_dist
+COPY backend/ .
 
-ENV DISABLE_GPU=1 \
-    DISABLE_OEMER=1 \
-    STATIC_DIR=/app/static \
-    AUDIVERIS_BIN=/opt/audiveris/bin/Audiveris \
-    CREPE_CHECKPOINT=/app/backend/checkpoints/crepe_violin.pt \
-    DATA_DIR=/tmp/data \
-    HF_HOME=/tmp/hf_cache \
-    MAX_AUDIO_SECONDS=300 \
-    OMP_NUM_THREADS=2 \
-    MKL_NUM_THREADS=2 \
-    PYTHONUNBUFFERED=1
+# ตั้งค่า Env สำหรับรันโหมดเว็บแบบ Headless บน HF Spaces
+ENV AUDIVERIS_BIN=/usr/bin/audiveris
+ENV DISABLE_GPU=1
 
 EXPOSE 7860
-WORKDIR /app/backend
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "7860"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860"]
