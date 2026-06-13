@@ -2,8 +2,7 @@ import os
 
 from loguru import logger
 
-# pynvml is GPU-only - absent on HF Free CPU. Import lazily so this module
-# (imported by routes/system.py at startup) still loads on a GPU-less box.
+# ดักเคส HF Free CPU ที่ไม่มี pynvml ไลบรารีจะได้ไม่บึ้มตอนสตาร์ทแอป
 try:
     import pynvml
     _PYNVML_AVAILABLE = True
@@ -13,7 +12,6 @@ except ImportError:
 
 
 def _is_cpu_mode() -> bool:
-    """True when all GPU logic should be bypassed (HF Free CPU / no pynvml)."""
     return os.getenv("DISABLE_GPU") == "1" or not _PYNVML_AVAILABLE
 
 
@@ -38,6 +36,7 @@ def get_freest_gpu() -> int:
                 "total_mb": mem_info.total // (1024 * 1024),
                 "gpu_util_pct": util.gpu,
             })
+            # เรียงตามแรมว่างสูงสุดก่อน ถ้าเท่ากันค่อยดู % การใช้งานต่อ
 
         sorted_gpus = sorted(
             free_memory_per_device,
