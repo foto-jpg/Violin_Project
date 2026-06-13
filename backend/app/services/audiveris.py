@@ -12,8 +12,6 @@ def run_audiveris(input_image: Path, output_dir: Path, timeout: int = 300) -> Pa
 
     audiveris_bin = os.getenv("AUDIVERIS_BIN")
     if audiveris_bin:
-        # HF / single-container mode - call the Java binary directly (no Docker).
-        # Same flags the docker entrypoint uses; writes straight to output_dir.
         cmd = [
             audiveris_bin,
             "-batch", "-export",
@@ -22,7 +20,6 @@ def run_audiveris(input_image: Path, output_dir: Path, timeout: int = 300) -> Pa
         ]
         logger.info(f"Audiveris (binary): {' '.join(cmd)}")
     else:
-        # Local mode - run the Audiveris docker image with the data dir mounted.
         data_root = settings.data_dir.resolve()
         audiveris_input = Path("/data") / input_image.resolve().relative_to(data_root)
         audiveris_output = Path("/data") / output_dir.resolve().relative_to(data_root)
