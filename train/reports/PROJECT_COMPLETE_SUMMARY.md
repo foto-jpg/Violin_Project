@@ -23,13 +23,11 @@ Pipeline:
 | Phase | สถานะ |
 |---|---|
 | ได้ชุดข้อมูล (MOSA/MusicNet/Bach10) | เสร็จ |
-| ได้ URMP | รอ (ติด Google Form) |
 | Composition matrix / แบ่ง 10 ชุด | เสร็จ |
 | จัดการ polyphony MusicNet (Option B) | เสร็จ |
 | Fine-tune CREPE-full | เสร็จ (5/30 epoch; หยุดเอง, best.pt ที่ step 20,000) |
 | ประเมิน baseline + finetuned (3 ชุดทดสอบ) | เสร็จ |
 | เขียนรายงานผล | เสร็จ (`training_results_report.md`) |
-| ต่อเข้า backend violin-checker จริง | ยังไม่ทำ |
 | เทรนรอบสอง (LR ต่ำ + freeze early) | ค้าง - ดู §10 |
 
 ---
@@ -61,11 +59,6 @@ Pipeline:
 - **ขนาด**: **10 ไฟล์ / 29,514 frame (pretrained) / 28,832 frame (finetuned)**
 - **เหตุผล**: benchmark มาตรฐานวงการ เทียบกับงานตีพิมพ์ได้ (Tamer 2022, lars76)
 
-### 2.4 URMP
-- **บทบาท**: validation (ตามสเปก) - **ไม่ได้ใช้ในรอบนี้**
-- **ที่มา**: Rochester URMP (ติด Google Form, research-only)
-- **เนื้อหา**: 44 recording วงรวมเครื่อง มี WAV แยกเครื่อง + GT F0 ราย frame
-- **ที่ใช้**: ไม่มี - รอสิทธิ์; ใช้ MOSA 5% แทน
 
 ---
 
