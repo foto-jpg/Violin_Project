@@ -1,0 +1,30 @@
+{
+  "total_epochs": 5,
+  "best_epoch": 1,
+  "best_val_rpa_weighted_mean": 0.6615,
+  "best_step": 20000,
+  "stop_reason": "user_killed_after_overfitting_observed",
+  "stop_reason_detail": "Training was manually terminated after epoch 5 because the spec-conformant test-set metrics (argmax+50c) were never re-checked during training; my proxy weighted-mean val RPA dropped monotonically from 0.656 at step 10000 to ~0.20 by epoch 5, which I mis-read as catastrophic overfitting. Post-train evaluation revealed the best.pt at step 10000 actually IMPROVES on all 3 test sets vs baseline. The remaining 4+ epochs of training did not produce a better best.pt (best.pt mtime stuck at 21:59 of day 1, val pass at step 10000).",
+  "wall_clock_sec": 41064.6,
+  "peak_vram_mb": 1118,
+  "best_pt_size_mb": 84.8666467666626,
+  "config": {
+    "model_size": "full",
+    "batch_size": 32,
+    "lr": 5e-05,
+    "max_epochs": 30,
+    "patience": 5,
+    "warmup_steps": 1000,
+    "validate_every": 10000,
+    "ckpt_every": 5000,
+    "val_frac": 0.05,
+    "weight_decay": 1e-05,
+    "lr_scheduler": "cosine",
+    "optimizer": "AdamW",
+    "loss": "binary_cross_entropy_per_bin",
+    "gaussian_target_std_cents": 25,
+    "device": "cuda:3",
+    "seed": 42,
+    "time_budget_hours": 12
+  }
+}

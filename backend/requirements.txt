@@ -1,0 +1,32 @@
+# Web framework
+fastapi==0.115.*
+uvicorn[standard]==0.32.*
+python-multipart==0.0.*
+pydantic==2.*
+pydantic-settings==2.*
+
+# OMR engine
+oemer>=0.1.6
+
+# GPU inference — installed AFTER oemer to override any CPU onnxruntime oemer pulls in
+# (see Dockerfile for the uninstall/reinstall step)
+onnxruntime-gpu>=1.17.0
+
+# Music libs
+music21==9.*
+pretty_midi>=0.2.0
+
+# File utilities
+python-magic>=0.4.27
+pillow>=10.0.0
+pdf2image>=1.17.0
+
+# GPU monitoring
+nvidia-ml-py>=12.0.0
+
+# Dev / test
+loguru>=0.7.0
+aiofiles>=24.0.0
+httpx>=0.27.0
+pytest>=8.0.0
+pytest-asyncio>=0.24.0

@@ -1,0 +1,41 @@
+# Node / Next.js
+node_modules/
+**/node_modules/
+.next/
+**/.next/
+out/
+**/out/
+
+# Python
+venv/
+**/venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+.pytest_cache/
+
+# Git
+.git/
+.gitignore
+
+# Runtime data / heavy dirs (DO NOT ignore backend/checkpoints — CREPE model needed)
+data/
+backend/data/
+outputs/
+datasets/
+backend/training/
+backend/tests/
+*.log
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Docs / planning (not needed in image)
+*.md
+docs/
+
+# OS
+.DS_Store
+Thumbs.db

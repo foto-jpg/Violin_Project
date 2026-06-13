@@ -1,0 +1,7 @@
+services:
+  backend:
+    runtime: nvidia
+    environment:
+      # Pin to RTX 3070 Ti (host GPU index 0) - leave 5090 free for other workloads
+      - NVIDIA_VISIBLE_DEVICES=0
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility

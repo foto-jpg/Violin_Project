@@ -1,0 +1,11 @@
+rank,file,rpa_ft,rca_ft,mae_ft,rpa_bl,rca_bl,mae_bl,delta_rpa,delta_mae,frames_used_ft,duration_sec,piece_id,performer_id
+1,02-AchLiebenChristen-violin.wav,0.9773,0.9790,16.83,0.9541,0.9549,16.48,+0.0232,+0.35,3521,40.49,02-AchLiebenChristen,
+2,06-DieSonne-violin.wav,0.9775,0.9789,19.48,0.9642,0.9669,19.99,+0.0133,-0.51,2887,33.25,06-DieSonne,
+3,09-Jesus-violin.wav,0.9797,0.9805,17.71,0.9661,0.9661,11.29,+0.0136,+6.43,2514,29.31,09-Jesus,
+4,08-FuerDeinenThron-violin.wav,0.9801,0.9852,21.96,0.9717,0.9758,17.11,+0.0083,+4.85,2914,33.20,08-FuerDeinenThron,
+5,01-AchGottundHerr-violin.wav,0.9824,0.9842,15.66,0.9645,0.9663,15.99,+0.0179,-0.33,2155,25.19,01-AchGottundHerr,
+6,04-ChristeDuBeistand-violin.wav,0.9827,0.9827,14.25,0.9752,0.9752,9.83,+0.0075,+4.42,3585,41.62,04-ChristeDuBeistand,
+7,03-ChristederdubistTagundLicht-violin.wav,0.9833,0.9843,13.50,0.9695,0.9708,13.97,+0.0139,-0.47,2159,25.32,03-ChristederdubistTagundLicht,
+8,10-NunBitten-violin.wav,0.9833,0.9833,13.62,0.9627,0.9627,12.62,+0.0206,+0.99,3240,37.35,10-NunBitten,
+9,05-DieNacht-violin.wav,0.9853,0.9859,16.78,0.9778,0.9788,12.99,+0.0075,+3.79,3055,35.77,05-DieNacht,
+10,07-HerrGott-violin.wav,0.9854,0.9868,15.61,0.9608,0.9635,17.84,+0.0246,-2.24,2802,32.52,07-HerrGott,

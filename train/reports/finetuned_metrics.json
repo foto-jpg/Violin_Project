@@ -1,0 +1,33 @@
+{
+  "model": "crepe-full finetuned (best.pt)",
+  "test_sets": {
+    "MOSA_test": {
+      "RPA": 0.8621621542092727,
+      "RCA": 0.871111005643256,
+      "MAE_cents": 60.06295497600849,
+      "n_frames": 514358,
+      "n_recordings": 52
+    },
+    "MusicNet_test": {
+      "RPA": 0.30932956786560095,
+      "RCA": 0.4181597895243485,
+      "MAE_cents": 706.540781656901,
+      "n_frames": 99916,
+      "n_recordings": 12
+    },
+    "Bach10": {
+      "RPA": 0.9816943050873321,
+      "RCA": 0.9830840461475795,
+      "MAE_cents": 16.539974784851076,
+      "n_frames": 28832,
+      "n_recordings": 10
+    },
+    "URMP": null
+  },
+  "preprocessing": {
+    "sr": 16000,
+    "hop_ms": 10,
+    "voicing_threshold": 0.5
+  },
+  "ran_at": "2026-05-24T09:13:07+07:00"
+}

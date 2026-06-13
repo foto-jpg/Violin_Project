@@ -1,0 +1,33 @@
+# HF Spaces Free CPU — slim deps (no GPU / no oemer / no onnxruntime).
+# Scope: Audiveris OMR + CREPE audio + DTW match.
+
+# Web framework
+fastapi
+uvicorn[standard]
+python-multipart
+pydantic
+pydantic-settings
+aiofiles
+loguru
+
+# Audio — CPU torch (avoid the multi-GB CUDA wheel)
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.2.2+cpu
+torchaudio==2.2.2+cpu
+torchcrepe
+librosa
+soundfile
+scipy
+numpy<2
+
+# Music data
+music21
+pretty_midi
+
+# Image / file handling (OMR preprocessing: trim / upscale / auto-orient)
+pillow
+pdf2image
+python-magic
+opencv-python-headless
+
+# NOTE: do NOT add onnxruntime*, oemer, nvidia-ml-py, or pynvml — CPU/Audiveris-only.

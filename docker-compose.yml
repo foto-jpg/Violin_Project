@@ -1,0 +1,23 @@
+services:
+
+  # ── Frontend ───────────────────────────────────────────────────────────────
+  # Backend runs in a venv on the host (port 8300) so it can use the GPU
+  # directly. The host firewall blocks dockerhost traffic on this network,
+  # so the frontend uses host networking - it shares the host's network
+  # namespace and can reach 127.0.0.1:8300 directly.
+  frontend:
+    build: ./frontend
+    container_name: omr-frontend
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      - PORT=3100
+      - HOSTNAME=0.0.0.0
+      - BACKEND_URL=http://127.0.0.1:8300
+
+  # ── Audiveris (build-only - invoked via `docker run --rm` per job) ─────────
+  audiveris:
+    build: ./docker/audiveris
+    image: violin-checker-audiveris:latest
+    profiles:
+      - build-only

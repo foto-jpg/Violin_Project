@@ -1,0 +1,33 @@
+{
+  "model": "crepe-full pretrained",
+  "test_sets": {
+    "MOSA_test": {
+      "RPA": 0.8108908913702121,
+      "RCA": 0.8230218044632271,
+      "MAE_cents": 91.99218383202187,
+      "n_frames": 553463,
+      "n_recordings": 52
+    },
+    "MusicNet_test": {
+      "RPA": 0.11858880525630684,
+      "RCA": 0.24996831942364292,
+      "MAE_cents": 1470.6181742350261,
+      "n_frames": 302627,
+      "n_recordings": 12
+    },
+    "Bach10": {
+      "RPA": 0.9666612286956371,
+      "RCA": 0.9681099359996261,
+      "MAE_cents": 14.809855747222901,
+      "n_frames": 29514,
+      "n_recordings": 10
+    },
+    "URMP": null
+  },
+  "preprocessing": {
+    "sr": 16000,
+    "hop_ms": 10,
+    "voicing_threshold": 0.5
+  },
+  "ran_at": "2026-05-23T21:12:17+07:00"
+}

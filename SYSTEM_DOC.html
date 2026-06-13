@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Violin Practice Evaluator - คู่มืออธิบายระบบ</title>
+<style>
+  :root{
+    --bg:#0f172a; --panel:#1e293b; --panel2:#172033; --ink:#e2e8f0; --muted:#94a3b8;
+    --teal:#2dd4bf; --indigo:#818cf8; --amber:#fbbf24; --rose:#fb7185; --green:#34d399;
+    --line:#334155; --code-bg:#0b1220;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,"Segoe UI",Roboto,"Noto Sans Thai","Sarabun",sans-serif;
+    line-height:1.7; font-size:16px;
+  }
+  a{color:var(--teal); text-decoration:none}
+  a:hover{text-decoration:underline}
+  .layout{display:flex; max-width:1400px; margin:0 auto}
+  /* Sidebar */
+  nav.toc{
+    width:300px; flex:0 0 300px; position:sticky; top:0; height:100vh; overflow:auto;
+    background:var(--panel2); border-right:1px solid var(--line); padding:24px 18px;
+  }
+  nav.toc h2{font-size:15px; color:var(--amber); margin:18px 0 8px; text-transform:uppercase; letter-spacing:.5px}
+  nav.toc a{display:block; color:var(--muted); padding:4px 8px; border-radius:6px; font-size:14px}
+  nav.toc a:hover{background:var(--panel); color:var(--ink); text-decoration:none}
+  nav.toc .brand{font-size:18px; font-weight:800; color:var(--ink); margin-bottom:4px}
+  nav.toc .brand span{color:var(--teal)}
+  /* Main */
+  main{flex:1; padding:36px 48px; min-width:0}
+  h1{font-size:30px; margin:0 0 6px; line-height:1.3}
+  h2.sec{font-size:24px; margin:48px 0 14px; padding-bottom:8px; border-bottom:2px solid var(--line); color:#fff}
+  h3{font-size:19px; margin:28px 0 8px; color:var(--teal)}
+  h4{font-size:16px; margin:18px 0 6px; color:var(--indigo)}
+  p{margin:8px 0}
+  code{background:var(--code-bg); padding:2px 6px; border-radius:5px; font-family:"JetBrains Mono",Consolas,monospace; font-size:13.5px; color:#fcd34d}
+  pre{background:var(--code-bg); border:1px solid var(--line); border-radius:10px; padding:16px; overflow:auto; margin:12px 0}
+  pre code{background:none; padding:0; color:#cbd5e1; font-size:13px; line-height:1.6}
+  .tag{display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; vertical-align:middle}
+  .t-be{background:#0e3a36; color:var(--teal)}
+  .t-fe{background:#2a2350; color:var(--indigo)}
+  .t-infra{background:#3a2e0e; color:var(--amber)}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 22px; margin:16px 0}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  @media(max-width:900px){.grid2{grid-template-columns:1fr} nav.toc{display:none} main{padding:24px}}
+  table{border-collapse:collapse; width:100%; margin:12px 0; font-size:14px}
+  th,td{border:1px solid var(--line); padding:8px 12px; text-align:left; vertical-align:top}
+  th{background:var(--panel2); color:var(--amber)}
+  .pill{font-family:"JetBrains Mono",monospace; font-size:12.5px}
+  .flow{font-family:"JetBrains Mono",monospace; font-size:13px; white-space:pre; background:var(--code-bg);
+        border:1px solid var(--line); border-radius:10px; padding:18px; overflow:auto; color:#a5f3fc}
+  .note{border-left:4px solid var(--amber); background:#2a230d; padding:10px 16px; border-radius:0 8px 8px 0; margin:14px 0}
+  .warn{border-left:4px solid var(--rose); background:#2a0d14; padding:10px 16px; border-radius:0 8px 8px 0; margin:14px 0}
+  .ok{border-left:4px solid var(--green); background:#0d2a1d; padding:10px 16px; border-radius:0 8px 8px 0; margin:14px 0}
+  .file{font-family:"JetBrains Mono",monospace; color:var(--teal); font-size:13px}
+  .legend span{margin-right:14px; font-size:13px}
+  .kbd{font-family:monospace; background:#334155; border-radius:4px; padding:1px 6px; font-size:12px}
+  hr{border:none; border-top:1px solid var(--line); margin:30px 0}
+  .small{color:var(--muted); font-size:13px}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="toc">
+  <div class="brand"> <span>Violin</span> Evaluator</div>
+  <div class="small">คู่มืออธิบายระบบ (Source walk-through)</div>
+  <h2>ภาพรวม</h2>
+  <a href="#overview">1. ระบบนี้คืออะไร</a>
+  <a href="#arch">2. สถาปัตยกรรม + Data flow</a>
+  <a href="#tree">3. โครงสร้างไฟล์</a>
+  <h2>Frontend</h2>
+  <a href="#fe-page">4. หน้าเว็บ &amp; การ route</a>
+  <a href="#fe-api">5. lib/api.ts + proxy</a>
+  <a href="#fe-components">6. Components สำคัญ</a>
+  <a href="#fe-player">7. Synced Score Player</a>
+  <h2>Backend</h2>
+  <a href="#be-main">8. main.py (entry)</a>
+  <a href="#be-omr">9. OMR pipeline</a>
+  <a href="#be-pre">10. Image preprocessing</a>
+  <a href="#be-audio">11. Audio pipeline (CREPE)</a>
+  <a href="#be-match">12. Match (DTW)</a>
+  <a href="#be-jobs">13. Job stores / infra</a>
+  <h2>Deploy &amp; ใช้งาน</h2>
+  <a href="#deploy">14. HF deployment</a>
+  <a href="#howto">15. วิธีเรียกใช้ / รัน</a>
+  <a href="#api-ref">16. API reference</a>
+</nav>
+
+<main>
+  <h1> Violin Practice Evaluator - คู่มืออธิบายระบบ</h1>
+  <p class="small">เอกสารนี้อธิบายการทำงานของระบบทั้งหมด แยกตามฟังก์ชันหลักและย่อย พร้อมดึงโค้ดสำคัญมาประกอบ และวิธีที่ไฟล์ต่าง ๆ เรียกใช้กัน</p>
+
+  <!-- ============ 1 OVERVIEW ============ -->
+  <h2 class="sec" id="overview">1. ระบบนี้คืออะไร</h2>
+  <p>เว็บแอปช่วย <b>ตรวจการเล่นไวโอลินอัตโนมัติ</b> รับ input 2 ทาง แล้วนำมาเทียบกัน:</p>
+  <div class="grid2">
+    <div class="card">
+      <h4> ภาพโน้ตเพลง  โน้ต (OMR)</h4>
+      <p>อัปรูป/PDF โน้ตเพลง ระบบใช้ <b>OMR (Optical Music Recognition)</b> แปลงเป็น MusicXML แล้วถอดเป็นรายการโน้ต ทำได้ 2 เครื่องยนต์:</p>
+      <ul>
+        <li><code>oemer</code> - deep learning (ONNX, ใช้ GPU)</li>
+        <li><code>Audiveris</code> - rule-based (Java)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4> คลิปเสียง  pitch (Audio)</h4>
+      <p>อัปไฟล์เสียงที่เล่นจริง ระบบใช้ <b>CREPE (fine-tuned สำหรับไวโอลิน)</b> ถอด pitch ราย frame แล้วแบ่งเป็นโน้ต (onset/rhythm ด้วย librosa)</p>
+    </div>
+  </div>
+  <p>จากนั้น <b>Match</b> เอาเสียงไปจูนกับโน้ตด้วย <b>DTW alignment</b> แล้วบอกว่าโน้ตแต่ละตัว <span style="color:var(--green)">เล่นถูก</span> / <span style="color:var(--rose)">เพี้ยน</span> / <span style="color:var(--amber)">ตก</span></p>
+
+  <div class="note">
+  <b>มี 2 หน้าตา (UI variant) จากโค้ดชุดเดียวกัน:</b><br>
+  • <b>Local (research)</b> - แท็บ "ภาพ" เปรียบเทียบ oemer  Audiveris บนภาพเดียวกัน + แท็บ "เสียง" (ใช้ GPU)<br>
+  • <b>HF (deploy)</b> - pipeline เต็ม: Audiveris + CREPE + Match + Synced Score Player (CPU เท่านั้น, ปิด oemer)<br>
+  สลับด้วย build flag <code>NEXT_PUBLIC_HF=1</code>
+  </div>
+
+  <!-- ============ 2 ARCH ============ -->
+  <h2 class="sec" id="arch">2. สถาปัตยกรรม &amp; Data flow</h2>
+  <div class="flow">
+┌─────────────────────────── Browser ───────────────────────────┐
+│  Next.js (React)   page.tsx ─┬─ LocalApp  (ImageCompare/Audio) │
+│                              └─ HfApp     (OMR+Audio+Match+OSMD)│
+│        │  fetch ผ่าน lib/api.ts  (BASE = /api/backend หรือ /api)│
+└────────┼───────────────────────────────────────────────────────┘
+         │  HTTP (อัปโหลด + poll ทุก 1.5s)
+         ▼
+┌─────────────────────────── FastAPI (app/main.py) ─────────────┐
+│  /api/omr/*   ── omr.py    ─► oemer_engine / audiveris        │
+│  /api/audio/* ── audio.py  ─► audio_engine (CREPE)            │
+│  /api/match   ── match.py  ─► audio_align (DTW)               │
+│  /api/*       ── system.py (health, gpu-status)              │
+│                                                              │
+│  ทุกงานหนักรันเป็น BackgroundTask + เก็บสถานะใน job store     │
+│  (in-memory dict)  frontend poll /result/{job_id}           │
+└──────────────────────────────────────────────────────────────┘
+  </div>
+
+  <h3>หลักการเด่นของระบบ (ต้องเข้าใจก่อน)</h3>
+  <table>
+    <tr><th>หลักการ</th><th>ทำไม / อยู่ที่ไหน</th></tr>
+    <tr><td><b>Async + polling</b></td><td>งาน OMR/Audio/Match ช้า (วินาที-นาที) จึงตอบ <code>job_id</code> ทันที แล้วรันเบื้องหลัง - frontend ใช้ <code>useSWR</code> poll <code>/result/{id}</code> ทุก 1.5 วิ</td></tr>
+    <tr><td><b>One job at a time</b></td><td><code>is_any_running()</code> กันรันซ้อน (GPU/CPU จำกัด)  ถ้ามีงานรันอยู่ตอบ HTTP 429</td></tr>
+    <tr><td><b>Shared preprocessing</b></td><td>ทั้ง 2 OMR engine อ่าน "ไฟล์ที่ผ่าน preprocess แล้ว" ตัวเดียวกัน  เปรียบเทียบยุติธรรม</td></tr>
+    <tr><td><b>Env-gated</b></td><td>โค้ดชุดเดียวรันได้ทั้ง local (GPU+docker) และ HF (CPU+binary) ผ่าน env var ไม่ต้องแยก branch โค้ด</td></tr>
+  </table>
+
+  <!-- ============ 3 TREE ============ -->
+  <h2 class="sec" id="tree">3. โครงสร้างไฟล์ (เฉพาะที่สำคัญ)</h2>
+  <pre><code>violin-checker/
+├─ backend/                          <span class="tag t-be">FastAPI</span>
+│  └─ app/
+│     ├─ main.py             entry: รวม router + เสิร์ฟ static (HF)
+│     ├─ config.py           settings (data_dir, timeout)
+│     ├─ routes/             HTTP endpoints
+│     │  ├─ omr.py           /api/omr/*   (process, result, download, musicxml)
+│     │  ├─ audio.py         /api/audio/* (process, result, file)
+│     │  ├─ match.py         /api/match   (async)
+│     │  └─ system.py        /api/health, /api/gpu-status
+│     ├─ services/           business logic
+│     │  ├─ oemer_engine.py  เรียก oemer (subprocess + ONNX)
+│     │  ├─ _ort_patch.py    patch onnxruntime ให้ใช้ CUDA + ลด batch
+│     │  ├─ audiveris.py     เรียก Audiveris (docker หรือ Java binary)
+│     │  ├─ audio_engine.py  CREPE pitch  note events
+│     │  ├─ audio_align.py   DTW เทียบเสียงกับโน้ต + ให้คะแนน
+│     │  ├─ gpu_selector.py  เลือก GPU ว่างสุด (pynvml)
+│     │  └─ job_store.py / audio_jobs.py / match_jobs.py   เก็บสถานะงาน
+│     └─ utils/
+│        ├─ files.py         preprocessing: orient / trim / upscale
+│        └─ musicxml.py      อ่าน/แตก .mxl, parse_notes,  MIDI
+├─ frontend/                         <span class="tag t-fe">Next.js</span>
+│  ├─ app/page.tsx           dispatch: HfApp หรือ LocalApp
+│  ├─ app/api/backend/[...path]/route.ts   proxy  backend (local เท่านั้น)
+│  ├─ lib/api.ts             ฟังก์ชันเรียก API ทั้งหมด
+│  └─ components/            UI (ดูหัวข้อ 6-7)
+├─ Dockerfile                        <span class="tag t-infra">HF deploy</span>
+└─ requirements-hf.txt</code></pre>
+
+  <!-- ============ 4 FE PAGE ============ -->
+  <h2 class="sec" id="fe-page">4. หน้าเว็บ &amp; การ route <span class="tag t-fe">Frontend</span></h2>
+  <p><span class="file">app/page.tsx</span> เป็นตัว "แยกทาง" ตาม build flag - เลือกระหว่าง UI วิจัย (local) กับ UI deploy (HF)</p>
+  <pre><code>export default function HomePage() {
+  // HF = full pipeline (Audiveris+CREPE+match), Local = research (oemerAudiveris)
+  if (process.env.NEXT_PUBLIC_HF === '1') return &lt;HfApp /&gt;
+  return &lt;LocalApp /&gt;
+}</code></pre>
+  <ul>
+    <li><b>LocalApp</b> - แท็บ <code>ภาพ</code> (<span class="file">ImageCompare.tsx</span>) / <code>เสียง</code> (<span class="file">AudioPanel.tsx</span>)</li>
+    <li><b>HfApp</b> (<span class="file">HfApp.tsx</span>) - อัปโน้ต(Audiveris) + อัปเสียง(CREPE) + ปุ่ม Match  <span class="file">SyncedScorePlayer.tsx</span></li>
+  </ul>
+
+  <!-- ============ 5 FE API ============ -->
+  <h2 class="sec" id="fe-api">5. lib/api.ts - ชั้นเรียก API + Proxy <span class="tag t-fe">Frontend</span></h2>
+  <p>ทุกการเรียก backend ผ่านไฟล์เดียว <span class="file">lib/api.ts</span> ซึ่งเลือก base URL ตาม environment:</p>
+  <pre><code>const isHF = process.env.NEXT_PUBLIC_HF === '1'
+// local  ยิงผ่าน proxy ของ Next.js ; HF  same-origin ตรงเข้า FastAPI
+const BASE = process.env.NEXT_PUBLIC_API_BASE ?? (isHF ? '/api' : '/api/backend')
+export const API_BASE = BASE        // ให้ &lt;audio&gt; / OSMD ใช้
+
+export async function submitJob(file, engine, tempo=120) {       // OMR
+  const form = new FormData(); form.append('file', file)
+  form.append('engine', engine); form.append('tempo', String(tempo))
+  const res = await fetch(`${BASE}/omr/process`, {method:'POST', body:form})
+  return res.json()                 //  { job_id, status }
+}
+export async function getResult(jobId)      // poll OMR
+export async function submitAudio(file, tempo)   // CREPE
+export async function startMatch(omrId, audioId, tempo)  //  job_id (async)
+export async function getMatchResult(jobId)</code></pre>
+  <h4>Proxy (local เท่านั้น)</h4>
+  <p><span class="file">app/api/backend/[...path]/route.ts</span> เป็น Next.js Route Handler ที่ forward <code>/api/backend/&lt;path&gt;</code>  <code>BACKEND_URL/api/&lt;path&gt;</code> (เพราะ local frontend(:3100) คนละ origin กับ backend(:8300))</p>
+  <div class="note">บน HF ใช้ <code>output:'export'</code> (static) จึงไม่มี proxy - Dockerfile จะ <code>rm -rf app/api</code> ก่อน build แล้ว FastAPI เสิร์ฟ <code>/api/*</code> เองที่ origin เดียวกัน</div>
+
+  <!-- ============ 6 FE COMPONENTS ============ -->
+  <h2 class="sec" id="fe-components">6. Components สำคัญ <span class="tag t-fe">Frontend</span></h2>
+  <table>
+    <tr><th>Component</th><th>หน้าที่</th></tr>
+    <tr><td class="file">UploadZone / AudioUpload</td><td>drag-drop อัปไฟล์ภาพ / เสียง</td></tr>
+    <tr><td class="file">ProcessingStatus</td><td>แสดงสถานะงาน (queued/running/done/error) + เวลา</td></tr>
+    <tr><td class="file">NotesView / AudioNotesView</td><td>แสดงรายการโน้ตจาก OMR / เสียง (จัดกลุ่มตามห้อง, สีตาม pitch class)</td></tr>
+    <tr><td class="file">ImageCompare</td><td>หัวใจของ "หน้าวิจัย" - รัน oemer แล้ว Audiveris บนภาพเดียว แล้วเทียบ (ดูด้านล่าง)</td></tr>
+    <tr><td class="file">MatchView</td><td>ตารางผล match ราย note (เก็บเป็น toggle รายละเอียดใน HfApp)</td></tr>
+    <tr><td class="file">SyncedScorePlayer</td><td>เครื่องเล่นโน้ต OSMD + เสียง + ระบายสีตามจังหวะ (หัวข้อ 7)</td></tr>
+  </table>
+
+  <h3>ImageCompare - เปรียบเทียบ 2 OMR engine</h3>
+  <p>เพราะ backend รันได้ทีละงาน จึงต้องรัน <b>sequential</b> (oemer ก่อน  Audiveris) แล้ววัดความตรงกันด้วย <b>LCS</b> (longest common subsequence ของลำดับ MIDI) เพื่อทนต่อโน้ตตก/เกิน:</p>
+  <pre><code>// รันทีละ engine (backend ปฏิเสธงานที่ 2 ถ้ามีงานรันอยู่)
+await runOmrAndWait(file, 'oemer', tempo, setOemer)
+await runOmrAndWait(file, 'audiveris', tempo, setAudiveris)
+
+// ความสอดคล้อง = 2·LCS / (len_a + len_b)
+const agreement = (2 * lcsLength(midiSeqA, midiSeqB)) / (a.length + b.length)</code></pre>
+
+  <!-- ============ 7 PLAYER ============ -->
+  <h2 class="sec" id="fe-player">7. Synced Score Player (OSMD) <span class="tag t-fe">Frontend</span></h2>
+  <p><span class="file">SyncedScorePlayer.tsx</span> เรนเดอร์โน้ตจริงด้วย <b>OpenSheetMusicDisplay</b> แล้ว sync กับเสียงที่เล่น</p>
+  <h4>1) โหลด + เก็บลิสต์โน้ตตามลำดับ</h4>
+  <pre><code>const xml = await (await fetch(`${API_BASE}/omr/musicxml/${omrJobId}`)).text()
+await osmd.load(xml); osmd.render()
+// เดินทั้ง graphical sheet เก็บ "หัวโน้ต" (ข้าม rest) เรียงตามลำดับ
+for (const staves of osmd.GraphicalMusicSheet.MeasureList)
+  for (const measure of staves)
+    for (const se of measure.staffEntries)
+      for (const gve of se.graphicalVoiceEntries)
+        for (const gn of gve.notes)
+          if (!gn.sourceNote.isRest()) gNotes.push(gn)</code></pre>
+  <h4>2) ระบายสีสด ๆ ผ่าน SVG (ไม่ re-render)</h4>
+  <pre><code>function paint(gNote, color) {            // แตะ &lt;g&gt; ของหัวโน้ตตรง ๆ
+  const el = gNote.getSVGGElement()
+  el.querySelectorAll('path, ellipse, rect').forEach(p =&gt; p.setAttribute('fill', color))
+}</code></pre>
+  <h4>3) sync ตามเวลาเสียง (playhead เอง - ไม่ใช้ OSMD cursor)</h4>
+  <pre><code>// โน้ตล่าสุดที่ start_sec ผ่านไปแล้ว = ตำแหน่งปัจจุบัน
+let activeIdx = -1
+for (let i=0;i&lt;notes.length;i++){ if (currentTime &gt;= notes[i].start_sec) activeIdx=i; else break }
+// ผ่านแล้วสีตามสถานะ, ปัจจุบันน้ำเงิน, ยังไม่ถึงดำ ; แล้ว scroll เข้าจอ
+</code></pre>
+  <div class="legend"><span> ถูก (correct)</span><span> เพี้ยน (wrong_pitch)</span><span> ตก (missed)</span><span> โน้ตปัจจุบัน</span><span> ยังไม่ถึง</span></div>
+  <div class="warn"><b>บทเรียนจริง 2 ข้อ:</b> (1) Audiveris export เป็น <code>.mxl</code> (zip)  ต้องแตกเป็น XML ก่อนป้อน OSMD &nbsp; (2) Audiveris ใส่ <code>&lt;direction&gt;</code> แปลก ๆ ทำ OSMD crash ตอน render  backend strip <code>&lt;direction&gt;</code> ออกใน <code>/api/omr/musicxml</code></div>
+
+  <!-- ============ 8 MAIN ============ -->
+  <h2 class="sec" id="be-main">8. main.py - จุดเริ่ม Backend <span class="tag t-be">Backend</span></h2>
+  <p>รวม router ทั้งหมดไว้ใต้ <code>/api</code> และ (เฉพาะ HF) เสิร์ฟ Next.js static + SPA fallback</p>
+  <pre><code>app.include_router(omr.router,   prefix="/api/omr")
+app.include_router(audio.router, prefix="/api/audio")
+app.include_router(match.router, prefix="/api")
+app.include_router(system.router,prefix="/api")
+
+# HF เท่านั้น: ถ้ามี STATIC_DIR  เสิร์ฟไฟล์ frontend + ตกหล่นไป index.html
+if STATIC_DIR and STATIC_DIR.exists():
+    app.mount("/_next", StaticFiles(directory=STATIC_DIR/"_next"))
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path): ...   # คืนไฟล์จริง หรือ index.html</code></pre>
+  <p class="small">หมายเหตุ: router ลงทะเบียน <b>ก่อน</b> catch-all เสมอ  <code>/api/*</code> ชนะ route ของหน้าเว็บ</p>
+
+  <!-- ============ 9 OMR ============ -->
+  <h2 class="sec" id="be-omr">9. OMR pipeline <span class="tag t-be">Backend</span></h2>
+  <p>ไฟล์: <span class="file">routes/omr.py</span>  <span class="file">services/oemer_engine.py</span> | <span class="file">services/audiveris.py</span></p>
+  <h4>9.1 รับงาน - POST /api/omr/process</h4>
+  <pre><code>if engine == Engine.oemer and OEMER_DISABLED:        # HF ปิด oemer
+    raise HTTPException(400, "oemer is disabled (CPU-only)")
+mime = validate_upload(content, filename)            # เช็คชนิด/ขนาด
+if job_store.is_any_running():                        # กันงานซ้อน
+    raise HTTPException(429, "Another job is already running")
+job_id, image_path = save_upload(content, mime, uploads_dir)  # preprocess ที่นี่
+job_store.create_job(job_id, engine.value)
+background_tasks.add_task(_run_job, job_id, engine, image_path)
+return ProcessResponse(job_id=job_id, status=queued)</code></pre>
+  <h4>9.2 ทำงานเบื้องหลัง - เลือก engine</h4>
+  <pre><code>def _run_job(job_id, engine, image_path):
+    if engine == Engine.oemer:
+        xml_path, gpu = run_oemer(image_path, result_dir, timeout)
+    else:
+        xml_path = run_audiveris(image_path, result_dir, timeout)
+    notes = parse_notes(xml_path, tempo)             # รายการโน้ต (musicxml.py)
+    job_store.update_job(job_id, status=done, musicxml_path=..., notes=notes)</code></pre>
+
+  <h4>9.3 oemer (deep learning)</h4>
+  <p><span class="file">oemer_engine.py</span> เรียก oemer ผ่าน <b>subprocess</b> (โมดูล <code>_ort_patch</code>) - แยก process เพื่อคุม GPU/หน่วยความจำ</p>
+  <pre><code>gpu_id = get_freest_gpu()                  # เลือก GPU ว่างสุด (pynvml)
+env["CUDA_VISIBLE_DEVICES"] = str(gpu_id)  # หรือ "" = CPU
+subprocess.run(["python","-m","app.services._ort_patch", image, "-o", out_dir], env=env)</code></pre>
+  <p class="small"><span class="file">_ort_patch.py</span> = แทรก option ให้ onnxruntime ใช้ <code>CUDAExecutionProvider</code> + จำกัด <code>gpu_mem_limit</code> + ลด batch size ก่อนเรียก <code>oemer.ete</code></p>
+
+  <h4>9.4 Audiveris (rule-based, Java)</h4>
+  <p><span class="file">audiveris.py</span> รองรับ 2 โหมดผ่าน env <code>AUDIVERIS_BIN</code>:</p>
+  <pre><code>if AUDIVERIS_BIN:                          # HF: เรียก Java binary ตรง
+    cmd = [AUDIVERIS_BIN, "-batch","-export","-output", out_dir, "--", image]
+else:                                      # Local: docker run
+    cmd = ["docker","run","--rm","-v", f"{data}:/data", AUDIVERIS_IMAGE, in_, out_]
+# จากนั้นค้นไฟล์ผลลัพธ์ *.mxl / *.musicxml / *.xml</code></pre>
+
+  <!-- ============ 10 PREPROCESS ============ -->
+  <h2 class="sec" id="be-pre">10. Image preprocessing (จุดสำคัญที่สุดของความแม่น) <span class="tag t-be">Backend</span></h2>
+  <p><span class="file">utils/files.py</span>  <code>save_upload()</code> เรียก 3 ขั้นตามลำดับ บนไฟล์ที่ทั้ง 2 engine ใช้ร่วมกัน:</p>
+  <pre><code>def save_upload(content, mime, uploads_dir):
+    ... เขียนไฟล์ ...
+    auto_orient(out_path)      # 1) หมุนให้ตั้งตรง
+    trim_whitespace(out_path)  # 2) ตัดขอบว่าง
+    upscale_for_omr(out_path)  # 3) ขยายถ้าความละเอียดต่ำ
+    return job_id, out_path</code></pre>
+
+  <h4>10.1 auto_orient - แก้รูปถ่ายมือถือหมุน/กลับหัว</h4>
+  <p>ตรวจว่าเส้น staff เป็นแนวตั้งไหม โดยเทียบ "ความเป็นคาบ" (autocorrelation peak) ของ projection แนวแถว vs คอลัมน์ ถ้าคอลัมน์เป็นคาบชัดกว่า = staff ตั้ง  หมุน 90° แล้วใช้ <b>Tesseract OSD</b> ตัดสินหัว/ท้าย (พลิก 180°)</p>
+  <pre><code>row_score = _autocorr_peak(dark.sum(axis=1))   # คาบถ้า staff "นอน"
+col_score = _autocorr_peak(dark.sum(axis=0))   # คาบถ้า staff "ตั้ง"
+if col_score &gt; 0.3 and col_score &gt; row_score*1.3:
+    rgb = rgb.transpose(ROTATE_270)            # หมุน 90°
+rot = _osd_rotation(rgb)                        # tesseract --psm 0
+if rot in (90,180,270): rgb = rgb.rotate(-rot)  # แก้กลับหัว</code></pre>
+
+  <h4>10.2 trim_whitespace - แก้ oemer พังกับหน้าโล่ง</h4>
+  <p>ตัดเหลือเฉพาะ bounding box ของเนื้อหา (+ขอบ 40px) เพราะ oemer หา staff ไม่เจอเมื่อโน้ตอยู่นิดเดียวกลางหน้าโล่ง</p>
+
+  <h4>10.3 upscale_for_omr - แก้ Audiveris ตีว่า resolution ต่ำ</h4>
+  <p>วัด <b>interline</b> (ระยะห่างเส้น staff) ด้วย autocorrelation แล้ว <b>ขยายเฉพาะเมื่อต่ำกว่า 13px</b> ให้ถึง ~20px (ถ้าพอแล้วไม่แตะ - เพราะขยายเกินทำเส้นแตก)</p>
+  <pre><code>interline = _estimate_interline(gray)     # autocorr peak ของ projection แนวแถว
+if interline &gt;= 13: return                 # พอแล้ว - อย่าแตะ
+factor = min(20/interline, 4.0)
+rgb.resize((w*factor, h*factor), LANCZOS)</code></pre>
+  <div class="ok">ผลจริงที่ทดสอบ: หน้า Gavotte (interline 9  ขยาย  130 โน้ต) และ Twinkle (interline 14  ไม่ขยาย  14 โน้ต) ทำงานทั้งคู่</div>
+
+  <!-- ============ 11 AUDIO ============ -->
+  <h2 class="sec" id="be-audio">11. Audio pipeline - CREPE <span class="tag t-be">Backend</span></h2>
+  <p>ไฟล์: <span class="file">routes/audio.py</span>  <span class="file">services/audio_engine.py</span></p>
+  <h4>11.1 รับงาน</h4>
+  <pre><code>// POST /api/audio/process - เช็คชนิดไฟล์, กันงานซ้อน, จำกัดความยาว (HF: MAX_AUDIO_SECONDS)
+background_tasks.add_task(_run_job, job_id, audio_path, tempo)
+// _run_job  analyze_audio(audio_path, tempo)</code></pre>
+  <h4>11.2 analyze_audio - pitch  note events</h4>
+  <p>โหลด checkpoint fine-tuned ถ้ามี (<code>CREPE_CHECKPOINT</code>) แล้วรัน CREPE (torchcrepe) ราย frame, กรอง median, แบ่งโน้ตจาก onset (librosa RMS/onset), จับ vibrato/re-articulation</p>
+  <pre><code>device = "cuda" if torch.cuda.is_available() else "cpu"   # พกพา CPU/GPU
+model = torchcrepe.Crepe("full"); model.load_state_dict(torch.load(ckpt, ...))
+# คืน { duration_sec, device, model, note_events:[{name, midi, start, end,...}], ... }</code></pre>
+
+  <!-- ============ 12 MATCH ============ -->
+  <h2 class="sec" id="be-match">12. Match - DTW alignment <span class="tag t-be">Backend</span></h2>
+  <p>ไฟล์: <span class="file">routes/match.py</span> (async)  <span class="file">services/audio_align.py</span></p>
+  <h4>12.1 เริ่มงาน (async)</h4>
+  <pre><code>// POST /api/match - เช็คว่า OMR + audio "done" แล้ว  คิวงาน  poll /match/result/{id}
+expected = parse_notes(omr.musicxml_path, tempo)            # โน้ตที่ควรเล่น
+result = align_audio_to_score(audio_file, expected, tempo)  # DTW</code></pre>
+  <h4>12.2 align_audio_to_score - แก่นการให้คะแนน</h4>
+  <p>ใช้ <b>chroma</b> ของเสียง (จาก CREPE) เทียบ chroma ที่สังเคราะห์จากโน้ตที่คาดหวัง ด้วย <b>banded DTW</b> แล้ว map ช่วงเวลาเสียงให้แต่ละโน้ต  วัด pitch ที่เล่นจริง  จัดสถานะ:</p>
+  <pre><code>def _classify(cents, voiced):
+    if voiced &lt; 0.3:        return "missed"        # ไม่มีเสียง
+    if abs(cents) &gt; 50:     return "wrong_pitch"   # เพี้ยน &gt; ครึ่งเสียง
+    return "correct"                               # ถูก
+# คืน { expected_count, aligned_count, summary{correct,wrong_pitch,missed},
+# notes:[{index, expected_name, start_sec, end_sec, status, ...}] }</code></pre>
+  <p class="small">ใช้ DTW บน chroma แทนการ segment โน้ตจากเสียงตรง ๆ  เลี่ยงปัญหา note-segmentation และจัดให้ตรงกับโน้ตที่อัปโหลด</p>
+
+  <!-- ============ 13 JOBS ============ -->
+  <h2 class="sec" id="be-jobs">13. Job stores &amp; infra <span class="tag t-be">Backend</span></h2>
+  <p>มี 3 store แยกชนิดงาน - ทั้งหมดเป็น <b>in-memory dict + lock</b> (เหมาะกับ 1 container; รีสตาร์ทแล้วหาย)</p>
+  <table>
+    <tr><th>ไฟล์</th><th>เก็บ</th><th>ฟังก์ชัน</th></tr>
+    <tr><td class="file">job_store.py</td><td>งาน OMR</td><td>create_job / get_job / update_job / is_any_running</td></tr>
+    <tr><td class="file">audio_jobs.py</td><td>งาน Audio</td><td>create / get / update / is_any_running</td></tr>
+    <tr><td class="file">match_jobs.py</td><td>งาน Match</td><td>create / get / set_state / is_any_running</td></tr>
+  </table>
+  <pre><code>_store: dict[str, JobState] = {}
+_lock = threading.Lock()
+def is_any_running() -&gt; bool:
+    return any(j.status == JobStatus.running for j in _store.values())</code></pre>
+  <p><b>gpu_selector.py</b> - เลือก GPU ว่างสุด; ทำให้ <code>pynvml</code> เป็น optional เพื่อรันบนเครื่องไม่มี GPU:</p>
+  <pre><code>try: import pynvml; _PYNVML_AVAILABLE = True
+except ImportError: _PYNVML_AVAILABLE = False
+def _is_cpu_mode(): return os.getenv("DISABLE_GPU")=="1" or not _PYNVML_AVAILABLE</code></pre>
+
+  <!-- ============ 14 DEPLOY ============ -->
+  <h2 class="sec" id="deploy">14. HF deployment <span class="tag t-infra">Infra</span></h2>
+  <p>คอนเทนเนอร์เดียว (Option C): FastAPI เสิร์ฟทั้ง static frontend + API ที่ port 7860</p>
+  <pre><code># Dockerfile (multi-stage)
+FROM node:20-alpine AS frontend-builder      # 1) build Next.js  static export
+  RUN rm -rf app/api                         # ลบ proxy (export ไม่รองรับ)
+  ENV NEXT_PUBLIC_HF=1 NEXT_PUBLIC_API_BASE=/api
+  RUN npm run build                          # /frontend/out
+FROM toprock/audiveris:latest AS audiveris   # 2) เอา Audiveris (Java) จาก image สาธารณะ
+FROM python:3.11-slim-bookworm               # 3) runtime
+  apt: openjdk-17-jre, tesseract-ocr(+osd), poppler, ffmpeg ...
+  COPY --from=audiveris /audiveris-extract /opt/audiveris
+  pip install -r requirements-hf.txt         # torch CPU, ไม่มี oemer/onnx
+  ENV DISABLE_GPU=1 DISABLE_OEMER=1 AUDIVERIS_BIN=/opt/audiveris/bin/Audiveris
+      STATIC_DIR=/app/static MAX_AUDIO_SECONDS=300 ...
+  CMD uvicorn app.main:app --host 0.0.0.0 --port 7860</code></pre>
+  <table>
+    <tr><th>env var</th><th>ผล</th></tr>
+    <tr><td class="pill">DISABLE_GPU=1</td><td>gpu_selector คืน -1, ปิดการเลือก GPU, จำกัด torch threads</td></tr>
+    <tr><td class="pill">DISABLE_OEMER=1</td><td>omr/process ปฏิเสธ engine=oemer (400)</td></tr>
+    <tr><td class="pill">AUDIVERIS_BIN</td><td>audiveris.py เรียก Java binary แทน docker</td></tr>
+    <tr><td class="pill">STATIC_DIR</td><td>main.py เสิร์ฟ frontend static + SPA</td></tr>
+    <tr><td class="pill">NEXT_PUBLIC_HF=1</td><td>(build-time) frontend  static export + UI แบบ HF</td></tr>
+  </table>
+
+  <!-- ============ 15 HOWTO ============ -->
+  <h2 class="sec" id="howto">15. วิธีเรียกใช้ / รัน <span class="tag t-infra">Run</span></h2>
+  <h4>โหมด Local (research, GPU)</h4>
+  <pre><code># Backend (host venv + GPU) - รันเป็น systemd user service
+systemctl --user start violin-backend       # http://localhost:8300
+# Frontend (docker)
+docker compose up -d frontend               # http://localhost:3100</code></pre>
+  <h4>โหมด HF (deploy, CPU) - คอนเทนเนอร์เดียว</h4>
+  <pre><code>docker build --network=host -t violin-hf:test .
+docker run -d -p 7860:7860 --name violin-test violin-hf:test
+# http://localhost:7860  (เว็บ + API รวมที่ origin เดียว)</code></pre>
+  <div class="note">flow ผู้ใช้: อัปโน้ต  <code>แสดงโน้ต</code> (poll จน done)  อัปเสียง  <code>แสดงโน้ต</code>  <code>เทียบเสียงกับโน้ต</code>  กด ▶ ใน Synced Score Player</div>
+
+  <!-- ============ 16 API REF ============ -->
+  <h2 class="sec" id="api-ref">16. API reference (ทดสอบด้วย curl)</h2>
+  <table>
+    <tr><th>Method · Path</th><th>หน้าที่</th><th>คืนค่า</th></tr>
+    <tr><td class="pill">POST /api/omr/process</td><td>อัปโน้ต (file, engine, tempo)</td><td>{job_id, status}</td></tr>
+    <tr><td class="pill">GET /api/omr/result/{id}</td><td>poll ผล OMR</td><td>status, notes[]</td></tr>
+    <tr><td class="pill">GET /api/omr/musicxml/{id}</td><td>MusicXML ที่แตก zip + strip direction (ให้ OSMD)</td><td>application/xml</td></tr>
+    <tr><td class="pill">GET /api/omr/download/{id}/{fmt}</td><td>ดาวน์โหลด musicxml / midi</td><td>ไฟล์</td></tr>
+    <tr><td class="pill">POST /api/audio/process</td><td>อัปเสียง (file, tempo)</td><td>{job_id, status}</td></tr>
+    <tr><td class="pill">GET /api/audio/result/{id}</td><td>poll ผล audio</td><td>note_events[], device, model</td></tr>
+    <tr><td class="pill">GET /api/audio/file/{id}</td><td>สตรีมไฟล์เสียงกลับ (ให้ &lt;audio&gt;)</td><td>audio/*</td></tr>
+    <tr><td class="pill">POST /api/match</td><td>เริ่ม match (omr_job_id, audio_job_id, tempo)</td><td>{job_id, status}</td></tr>
+    <tr><td class="pill">GET /api/match/result/{id}</td><td>poll ผล match</td><td>summary, notes[]+status</td></tr>
+    <tr><td class="pill">GET /api/health</td><td>เช็คสถานะ + engine ที่ใช้ได้</td><td>{status, audiveris_available, oemer_available}</td></tr>
+  </table>
+  <pre><code># ตัวอย่าง: รัน OMR ด้วย Audiveris แล้ว poll
+JID=$(curl -s -F file=@sheet.png -F engine=audiveris -F tempo=96 \
+        localhost:8300/api/omr/process | jq -r .job_id)
+curl -s localhost:8300/api/omr/result/$JID | jq '{status, n:(.notes|length)}'</code></pre>
+
+  <hr>
+  <p class="small">สร้างจากการอ่าน source โดยตรง · โครงสร้างหลัก: Frontend(Next.js)  lib/api.ts  FastAPI routes  services(OMR/Audio/Match)  utils(files/musicxml) · จุดเด่น: async+poll, one-job-at-a-time, shared preprocessing, env-gated single codebase.</p>
+</main>
+</div>
+</body>
+</html>

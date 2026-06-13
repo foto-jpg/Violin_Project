@@ -1,0 +1,62 @@
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+venv/
+.venv/
+env/
+
+# ---------- Node / Next.js ----------
+node_modules/
+.next/
+out/
+.turbo/
+npm-debug.log*
+yarn-error.log*
+
+# ---------- Build / dist ----------
+build/
+dist/
+*.tsbuildinfo
+
+# ---------- Env / secrets ----------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets.*
+credentials.*
+
+# ---------- Runtime data (อย่า commit) ----------
+data/
+uploads/
+results/
+logs/
+*.log
+*.pid
+
+# ---------- Datasets / outputs ขนาดใหญ่ ----------
+datasets/
+dataset_raw/
+outputs/
+*.zip
+*.tar
+*.tar.gz
+
+# ---------- Model weights (ใหญ่ → ใช้ Git LFS) ----------
+*.pt
+*.pth
+*.ckpt
+*.onnx
+# ยกเว้นโมเดลที่ deploy จริง (แนะนำ track ด้วย Git LFS)
+!backend/checkpoints/crepe_violin.pt
+
+# ---------- Misc ----------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

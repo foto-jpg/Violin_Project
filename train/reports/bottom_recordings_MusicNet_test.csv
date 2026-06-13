@@ -1,0 +1,13 @@
+rank,file,rpa_ft,rca_ft,mae_ft,rpa_bl,rca_bl,mae_bl,delta_rpa,delta_mae,frames_used_ft,duration_sec,piece_id,performer_id
+1,2147.wav,0.0067,0.0199,1092.02,0.0100,0.0320,1581.60,-0.0033,-489.58,11549,501.81,Brahms::String Sextet No 2 in G major,String Sextet
+2,2466.wav,0.1113,0.1299,410.47,0.0575,0.0966,1217.43,+0.0537,-806.96,5141,305.74,Beethoven::Violin Sonata No 4 in A minor,Accompanied Violin
+3,2621.wav,0.2400,0.4193,1035.08,0.0908,0.2603,1624.29,+0.1492,-589.21,12899,648.67,Beethoven::String Quartet No 7 in F major,String Quartet
+4,1788.wav,0.2568,0.3795,930.73,0.0816,0.2175,1694.76,+0.1752,-764.04,10075,513.19,Mozart::String Quartet No 19 in C major,String Quartet
+5,2622.wav,0.3048,0.5624,975.12,0.1249,0.3465,1605.38,+0.1799,-630.26,9615,507.25,Beethoven::String Quartet No 7 in F major,String Quartet
+6,1791.wav,0.3066,0.4466,829.43,0.0788,0.2295,1696.39,+0.2278,-866.96,6148,351.53,Mozart::String Quartet No 19 in C major,String Quartet
+7,1793.wav,0.3194,0.3449,322.97,0.1030,0.2104,1526.09,+0.2164,-1203.12,3685,504.89,Mozart::String Quartet No 19 in C major,String Quartet
+8,1792.wav,0.3968,0.4787,450.41,0.1103,0.2230,1410.50,+0.2865,-960.09,4826,472.79,Mozart::String Quartet No 19 in C major,String Quartet
+9,1789.wav,0.4017,0.4490,642.13,0.0964,0.2070,1661.22,+0.3053,-1019.09,7648,461.33,Mozart::String Quartet No 19 in C major,String Quartet
+10,1790.wav,0.4155,0.5503,630.04,0.1388,0.3247,1375.68,+0.2767,-745.65,7134,323.86,Mozart::String Quartet No 19 in C major,String Quartet
+11,2463.wav,0.4394,0.5089,625.71,0.2316,0.3244,1124.09,+0.2078,-498.37,8967,309.73,Beethoven::Violin Sonata No 4 in A minor,Accompanied Violin
+12,2462.wav,0.5130,0.7285,534.37,0.2994,0.5276,1129.99,+0.2137,-595.62,12229,489.43,Beethoven::Violin Sonata No 4 in A minor,Accompanied Violin
