@@ -22,8 +22,6 @@ class MatchRequest(BaseModel):
 
 @router.post("/match")
 async def start_match(req: MatchRequest, background_tasks: BackgroundTasks):
-    # Validate up front so the client gets immediate 404/409 feedback, then run
-    # the (slow on CPU) DTW alignment in the background and poll for the result.
     omr = job_store.get_job(req.omr_job_id)
     if not omr or not omr.musicxml_path:
         raise HTTPException(404, f"OMR job {req.omr_job_id} not found / not finished")
